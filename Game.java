@@ -15,7 +15,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
+import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.awt.Component;
+import java.util.List;
+import java.util.LinkedList;
+import java.awt.event.MouseListener;
+import java.util.Timer;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
