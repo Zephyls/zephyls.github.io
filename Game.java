@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JComboBox;
