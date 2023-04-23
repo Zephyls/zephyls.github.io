@@ -21,9 +21,12 @@ import java.awt.Component;
 import java.util.List;
 import java.util.LinkedList;
 import java.awt.event.MouseListener;
-import java.util.Timer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.awt.Point;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.awt.event.*;
+import javax.swing.Timer;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.imageio.ImageIO;
@@ -37,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Box;
+import javax.swing.Timer;
 
 public class Game implements Runnable {
     public void run() {
@@ -77,7 +81,6 @@ class GameWindow {
 
         gameWindow.setLayout(new BorderLayout(20, 20));
 
-        // Game Data window
         JPanel gameData = gameDataPanel(blackName, whiteName, hh, mm, ss);
         gameData.setSize(gameData.getPreferredSize());
         gameWindow.add(gameData, BorderLayout.NORTH);
@@ -96,8 +99,6 @@ class GameWindow {
         gameWindow.setVisible(true);
         gameWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
-
-    // Helper function to create data panel
 
     private JPanel gameDataPanel(final String bn, final String wn,
             final int hh, final int mm, final int ss) {
@@ -297,13 +298,11 @@ class StartMenu implements Runnable {
         Box components = Box.createVerticalBox();
         startWindow.add(components);
 
-        // Game title
         final JPanel titlePanel = new JPanel();
         components.add(titlePanel);
         final JLabel titleLabel = new JLabel("Chess");
         titlePanel.add(titleLabel);
 
-        // Black player selections
         final JPanel blackPanel = new JPanel();
         components.add(blackPanel, BorderLayout.EAST);
         final JLabel blackPiece = new JLabel();
@@ -318,7 +317,6 @@ class StartMenu implements Runnable {
         final JTextField blackInput = new JTextField("Black", 10);
         blackPanel.add(blackInput);
 
-        // White player selections
         final JPanel whitePanel = new JPanel();
         components.add(whitePanel);
         final JLabel whitePiece = new JLabel();
@@ -335,7 +333,6 @@ class StartMenu implements Runnable {
         final JTextField whiteInput = new JTextField("White", 10);
         whitePanel.add(whiteInput);
 
-        // Timer settings
         final String[] minSecInts = new String[60];
         for (int i = 0; i < 60; i++) {
             if (i < 10) {
@@ -365,7 +362,6 @@ class StartMenu implements Runnable {
 
         components.add(timerSettings);
 
-        // Buttons
         Box buttons = Box.createHorizontalBox();
         final JButton quit = new JButton("Quit");
 
@@ -421,7 +417,7 @@ class StartMenu implements Runnable {
 
 @SuppressWarnings("serial")
 class Board extends JPanel implements MouseListener, MouseMotionListener {
-    // Resource location constants for piece images
+
     private static final String RESOURCES_WBISHOP_PNG = "wbishop.png";
     private static final String RESOURCES_BBISHOP_PNG = "bbishop.png";
     private static final String RESOURCES_WKNIGHT_PNG = "wknight.png";
@@ -435,11 +431,9 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
     private static final String RESOURCES_WPAWN_PNG = "wpawn.png";
     private static final String RESOURCES_BPAWN_PNG = "bpawn.png";
 
-    // Logical and graphical representations of board
     private final Square[][] board;
     private final GameWindow g;
 
-    // List of pieces and whether they are movable
     public final LinkedList<Piece> Bpieces;
     public final LinkedList<Piece> Wpieces;
     public List<Square> movable;
@@ -460,7 +454,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
         setLayout(new GridLayout(8, 8, 0, 0));
 
         this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+        this.addMouseMotionListener(Board.this);
 
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -546,7 +540,6 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
 
     @Override
     public void paintComponent(Graphics g) {
-        // super.paintComponent(g);
 
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -636,7 +629,6 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
         repaint();
     }
 
-    // Irrelevant methods, do nothing for these mouse behaviors
     @Override
     public void mouseMoved(MouseEvent e) {
     }
@@ -927,7 +919,6 @@ abstract class Piece {
         return diagOccup;
     }
 
-    // No implementation, to be implemented by each subclass
     public abstract List<Square> getLegalMoves(Board b);
 }
 
@@ -1172,16 +1163,6 @@ class CheckmateDetector {
     private HashMap<Square, List<Piece>> wMoves;
     private HashMap<Square, List<Piece>> bMoves;
 
-    /**
-     * Constructs a new instance of CheckmateDetector on a given board. By
-     * convention should be called when the board is in its initial state.
-     * 
-     * @param b       The board which the detector monitors
-     * @param wPieces White pieces on the board.
-     * @param bPieces Black pieces on the board.
-     * @param wk      Piece object representing the white king
-     * @param bk      Piece object representing the black king
-     */
     public CheckmateDetector(Board b, LinkedList<Piece> wPieces,
             LinkedList<Piece> bPieces, King wk, King bk) {
         this.b = b;
@@ -1190,7 +1171,6 @@ class CheckmateDetector {
         this.bk = bk;
         this.wk = wk;
 
-        // Initialize other fields
         squares = new LinkedList<Square>();
         movableSquares = new LinkedList<Square>();
         wMoves = new HashMap<Square, List<Piece>>();
@@ -1198,7 +1178,6 @@ class CheckmateDetector {
 
         Square[][] brd = b.getSquareArray();
 
-        // add all squares to squares list and as hashmap keys
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 squares.add(brd[y][x]);
@@ -1207,19 +1186,14 @@ class CheckmateDetector {
             }
         }
 
-        // update situation
         update();
     }
 
-    /**
-     * Updates the object with the current situation of the game.
-     */
     public void update() {
-        // Iterators through pieces
+
         Iterator<Piece> wIter = wPieces.iterator();
         Iterator<Piece> bIter = bPieces.iterator();
 
-        // empty moves and movable squares at each update
         for (List<Piece> pieces : wMoves.values()) {
             pieces.removeAll(pieces);
         }
@@ -1230,7 +1204,6 @@ class CheckmateDetector {
 
         movableSquares.removeAll(movableSquares);
 
-        // Add each move white and black can make to map
         while (wIter.hasNext()) {
             Piece p = wIter.next();
 
@@ -1268,11 +1241,6 @@ class CheckmateDetector {
         }
     }
 
-    /**
-     * Checks if the black king is threatened
-     * 
-     * @return boolean representing whether the black king is in check.
-     */
     public boolean blackInCheck() {
         update();
         Square sq = bk.getPosition();
@@ -1283,11 +1251,6 @@ class CheckmateDetector {
             return true;
     }
 
-    /**
-     * Checks if the white king is threatened
-     * 
-     * @return boolean representing whether the white king is in check.
-     */
     public boolean whiteInCheck() {
         update();
         Square sq = wk.getPosition();
@@ -1298,72 +1261,49 @@ class CheckmateDetector {
             return true;
     }
 
-    /**
-     * Checks whether black is in checkmate.
-     * 
-     * @return boolean representing if black player is checkmated.
-     */
     public boolean blackCheckMated() {
         boolean checkmate = true;
-        // Check if black is in check
+
         if (!this.blackInCheck())
             return false;
 
-        // If yes, check if king can evade
         if (canEvade(wMoves, bk))
             checkmate = false;
 
-        // If no, check if threat can be captured
         List<Piece> threats = wMoves.get(bk.getPosition());
         if (canCapture(bMoves, threats, bk))
             checkmate = false;
 
-        // If no, check if threat can be blocked
         if (canBlock(threats, bMoves, bk))
             checkmate = false;
 
-        // If no possible ways of removing check, checkmate occurred
         return checkmate;
     }
 
-    /**
-     * Checks whether white is in checkmate.
-     * 
-     * @return boolean representing if white player is checkmated.
-     */
     public boolean whiteCheckMated() {
         boolean checkmate = true;
-        // Check if white is in check
+
         if (!this.whiteInCheck())
             return false;
 
-        // If yes, check if king can evade
         if (canEvade(bMoves, wk))
             checkmate = false;
 
-        // If no, check if threat can be captured
         List<Piece> threats = bMoves.get(wk.getPosition());
         if (canCapture(wMoves, threats, wk))
             checkmate = false;
 
-        // If no, check if threat can be blocked
         if (canBlock(threats, wMoves, wk))
             checkmate = false;
 
-        // If no possible ways of removing check, checkmate occurred
         return checkmate;
     }
 
-    /*
-     * Helper method to determine if the king can evade the check.
-     * Gives a false positive if the king can capture the checking piece.
-     */
     private boolean canEvade(Map<Square, List<Piece>> tMoves, King tKing) {
         boolean evade = false;
         List<Square> kingsMoves = tKing.getLegalMoves(b);
         Iterator<Square> iterator = kingsMoves.iterator();
 
-        // If king is not threatened at some square, it can evade
         while (iterator.hasNext()) {
             Square sq = iterator.next();
             if (!testMove(tKing, sq))
@@ -1377,9 +1317,6 @@ class CheckmateDetector {
         return evade;
     }
 
-    /*
-     * Helper method to determine if the threatening piece can be captured.
-     */
     private boolean canCapture(Map<Square, List<Piece>> poss,
             List<Piece> threats, King k) {
 
@@ -1411,9 +1348,6 @@ class CheckmateDetector {
         return capture;
     }
 
-    /*
-     * Helper method to determine if check can be blocked by a piece.
-     */
     private boolean canBlock(List<Piece> threats,
             Map<Square, List<Piece>> blockMoves, King k) {
         boolean blockable = false;
@@ -1557,15 +1491,6 @@ class CheckmateDetector {
         return blockable;
     }
 
-    /**
-     * Method to get a list of allowable squares that the player can move.
-     * Defaults to all squares, but limits available squares if player is in
-     * check.
-     * 
-     * @param b boolean representing whether it's white player's turn (if yes,
-     *          true)
-     * @return List of squares that the player can move into.
-     */
     public List<Square> getAllowableSquares(boolean b) {
         movableSquares.removeAll(movableSquares);
         if (whiteInCheck()) {
@@ -1576,14 +1501,6 @@ class CheckmateDetector {
         return movableSquares;
     }
 
-    /**
-     * Tests a move a player is about to make to prevent making an illegal move
-     * that puts the player in check.
-     * 
-     * @param p  Piece moved
-     * @param sq Square to which p is about to move
-     * @return false if move would cause a check
-     */
     public boolean testMove(Piece p, Square sq) {
         Piece c = sq.getOccupyingPiece();
 
