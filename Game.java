@@ -1556,60 +1556,55 @@ class Clock {
         return fTime;
     }
 }
+
 class GameSaver {
     public static void saveGame(Game game, String fileName) throws IOException {
-    try (DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName))) {
-    // Save the board size
-    out.writeInt(game.getBoardSize());
-    
-        // Save each piece on the board
-        for (int row = 0; row < game.getBoardSize(); row++) {
-            for (int col = 0; col < game.getBoardSize(); col++) {
-                Piece piece = game.getBoard().getPiece(row, col);
+        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName))) {
 
-                // Encode the piece as a binary value based on its type, position, and color
-                int value = piece.getType().ordinal() << 5; // Shift the type value 5 bits to the left
-                value |= col << 1; // Add the horizontal position (4 bits)
-                value |= row >> 3; // Add the upper 1 bit of the vertical position
-                value <<= 1; // Shift the value 1 bit to the left to make room for the color bit
-                value |= (piece.getColor() == Piece.Color.WHITE) ? 0 : 1; // Add the color bit
+            out.writeInt(game.getBoardSize());
 
-                // Write the encoded value to the output stream
-                out.writeByte(value);
+            for (int row = 0; row < game.getBoardSize(); row++) {
+                for (int col = 0; col < game.getBoardSize(); col++) {
+                    Piece piece = game.getBoard().getPiece(row, col);
+
+                    int value = piece.getType().ordinal() << 5;
+                    value |= col << 1;
+                    value |= row >> 3;
+                    value <<= 1;
+                    value |= (piece.getColor() == Piece.Color.WHITE) ? 0 : 1;
+
+                    out.writeByte(value);
+                }
             }
-        }
 
-        // Save the player turn
-        out.writeInt(game.getPlayerTurn().ordinal());
+            out.writeInt(game.getPlayerTurn().ordinal());
+        }
+    }
+
+    public static Game loadGame(String fileName) throws IOException {
+        try (DataInputStream in = new DataInputStream(new FileInputStream(fileName))) {
+
+            int size = in.readInt();
+            Game game = new Game(size);
+
+            for (int row = 0; row < game.getBoardSize(); row++) {
+                for (int col = 0; col < game.getBoardSize(); col++) {
+
+                    int value = in.readByte();
+                    Piece.Type type = Piece.Type.values()[value >> 5];
+                    int colValue = (value >> 1) & 0x0F;
+                    int rowValue = ((value & 0x01) << 3) | (row & 0x07);
+                    Piece.Color color = ((value & 0x01) == 0) ? Piece.Color.WHITE : Piece.Color.BLACK;
+
+                    Piece piece = Piece.create(type, color);
+                    game.getBoard().setPiece(rowValue, colValue, piece);
+                }
+            }
+
+            int playerTurnOrdinal = in.readInt();
+            game.setPlayerTurn(PlayerTurn.values()[playerTurnOrdinal]);
+
+            return game;
+        }
     }
 }
-
-public static Game loadGame(String fileName) throws IOException {
-    try (DataInputStream in = new DataInputStream(new FileInputStream(fileName))) {
-
-        int size = in.readInt();
-        Game game = new Game(size);
-
-
-        for (int row = 0; row < game.getBoardSize(); row++) {
-            for (int col = 0; col < game.getBoardSize(); col++) {
-
-                int value = in.readByte();
-                Piece.Type type = Piece.Type.values()[value >> 5];
-                int colValue = (value >> 1) & 0x0F; 
-                int rowValue = ((value & 0x01) << 3) | (row & 0x07); 
-                Piece.Color color = ((value & 0x01) == 0) ? Piece.Color.WHITE : Piece.Color.BLACK;
-
-
-                Piece piece = Piece.create(type, color);
-                game.getBoard().setPiece(rowValue, colValue, piece);
-            }
-        }
-
-        int playerTurnOrdinal = in.readInt();
-        game.setPlayerTurn(PlayerTurn.values()[playerTurnOrdinal]);
-
-        return game;
-    }
-}
-}    
