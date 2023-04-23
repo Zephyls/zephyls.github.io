@@ -41,14 +41,82 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Box;
 import javax.swing.Timer;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class Game implements Runnable {
+
     public void run() {
         SwingUtilities.invokeLater(new StartMenu());
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Game());
+        SwingUtilities.invokeLater(new Game(8));
+    }
+
+    public class ChessGameSaver {
+        public static void saveGame(ChessBoard board, String fileName) throws IOException {
+            try (DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName))) {
+                // Save the board size
+                out.writeInt(board.getSize());
+
+                // Save each piece on the board
+                for (int row = 0; row < board.getSize(); row++) {
+                    for (int col = 0; col < board.getSize(); col++) {
+                        ChessPiece piece = board.getPiece(row, col);
+
+                        // Encode the piece as a binary value based on its type, position, and color
+                        int value = piece.getType().ordinal() << 5; // Shift the type value 5 bits to the left
+                        value |= col << 1; // Add the horizontal position (4 bits)
+                        value |= row >> 3; // Add the upper 1 bit of the vertical position
+                        value <<= 1; // Shift the value 1 bit to the left to make room for the color bit
+                        value |= (piece.getColor() == ChessPiece.Color.WHITE) ? 0 : 1; // Add the color bit
+
+                        // Write the encoded value to the output stream
+                        out.writeByte(value);
+                    }
+                }
+            }
+        }
+
+        public static ChessBoard loadGame(String fileName) throws IOException {
+            try (DataInputStream in = new DataInputStream(new FileInputStream(fileName))) {
+                // Read the board size
+                int size = in.readInt();
+                ChessBoard board = new ChessBoard(size);
+
+                // Read each piece on the board
+                for (int row = 0; row < board.getSize(); row++) {
+                    for (int col = 0; col < board.getSize(); col++) {
+                        // Read the encoded value of the piece from the input stream
+                        int value = in.readByte();
+
+                        // Extract the type, position, and color information from the encoded value
+                        ChessPiece.Type type = ChessPiece.Type.values()[value >> 5]; // Get the upper 3 bits
+                        int colValue = (value >> 1) & 0x0F; // Get the next 4 bits
+                        int rowValue = ((value & 0x01) << 3) | (row & 0x07); // Get the lower 3 bits and combine with
+                                                                             // the row value
+                        ChessPiece.Color color = ((value & 0x01) == 0) ? ChessPiece.Color.WHITE
+                                : ChessPiece.Color.BLACK;
+
+                        // Create a new piece of the appropriate type, color, and position and add it to
+                        // the board
+                        ChessPiece piece = ChessPiece.create(type, color);
+                        board.setPiece(rowValue, colValue, piece);
+                    }
+                }
+
+                return board;
+            }
+        }
     }
 }
 
@@ -418,19 +486,18 @@ class StartMenu implements Runnable {
 @SuppressWarnings("serial")
 class Board extends JPanel implements MouseListener, MouseMotionListener {
 
-    private static final String RESOURCES_WBISHOP_PNG = "\u2657";
-    private static final String RESOURCES_BBISHOP_PNG = "\u265D";
-    private static final String RESOURCES_WKNIGHT_PNG = "\u2658";
-    private static final String RESOURCES_BKNIGHT_PNG = "\u265E";
-    private static final String RESOURCES_WROOK_PNG = "\u2656";
-    private static final String RESOURCES_BROOK_PNG = "\u265C";
-    private static final String RESOURCES_WKING_PNG = "\u2654";
-    private static final String RESOURCES_BKING_PNG = "\u265A";
-    private static final String RESOURCES_BQUEEN_PNG = "\u265B";
-    private static final String RESOURCES_WQUEEN_PNG = "\u2655";
-    private static final String RESOURCES_WPAWN_PNG = "\u2659";
-    private static final String RESOURCES_BPAWN_PNG = "\u265F";
-
+    private static final String RESOURCES_WBISHOP_PNG = "wbishop.png";
+    private static final String RESOURCES_BBISHOP_PNG = "bbishop.png";
+    private static final String RESOURCES_WKNIGHT_PNG = "wknight.png";
+    private static final String RESOURCES_BKNIGHT_PNG = "bknight.png";
+    private static final String RESOURCES_WROOK_PNG = "wrook.png";
+    private static final String RESOURCES_BROOK_PNG = "brook.png";
+    private static final String RESOURCES_WKING_PNG = "wking.png";
+    private static final String RESOURCES_BKING_PNG = "bking.png";
+    private static final String RESOURCES_BQUEEN_PNG = "bqueen.png";
+    private static final String RESOURCES_WQUEEN_PNG = "wqueen.png";
+    private static final String RESOURCES_WPAWN_PNG = "wpawn.png";
+    private static final String RESOURCES_BPAWN_PNG = "bpawn.png";
     private final Square[][] board;
     private final GameWindow g;
 
@@ -1556,6 +1623,3 @@ class Clock {
         return fTime;
     }
 }
-
-
-
