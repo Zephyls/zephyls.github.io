@@ -1556,56 +1556,6 @@ class Clock {
         return fTime;
     }
 }
-import java.io.*;
 
-class GameSaver {
-    public static void saveGame(Game game, String fileName) throws IOException {
-        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(fileName))) {
 
-            out.writeInt(game.getBoard().getSize());
 
-            for (int row = 0; row < game.getBoard().getSize(); row++) {
-                for (int col = 0; col < game.getBoard().getSize(); col++) {
-                    Piece piece = game.getBoard().getPiece(row, col);
-
-                    int value = piece.getType().ordinal() << 5;
-                    value |= col << 1;
-                    value |= row >> 3;
-                    value <<= 1;
-                    value |= (piece.getColor() == Piece.Color.WHITE) ? 0 : 1;
-
-                    out.writeByte(value);
-                }
-            }
-
-            out.writeInt(game.getCurrentPlayer().ordinal());
-        }
-    }
-
-    public static Game loadGame(String fileName) throws IOException {
-        try (DataInputStream in = new DataInputStream(new FileInputStream(fileName))) {
-
-            int size = in.readInt();
-            Game game = new Game(size);
-
-            for (int row = 0; row < game.getBoard().getSize(); row++) {
-                for (int col = 0; col < game.getBoard().getSize(); col++) {
-
-                    int value = in.readByte();
-                    Piece.Type type = Piece.Type.values()[value >> 5];
-                    int colValue = (value >> 1) & 0x0F;
-                    int rowValue = ((value & 0x01) << 3) | (row & 0x07);
-                    Piece.Color color = ((value & 0x01) == 0) ? Piece.Color.WHITE : Piece.Color.BLACK;
-
-                    Piece piece = Piece.create(type, color);
-                    game.getBoard().setPiece(rowValue, colValue, piece);
-                }
-            }
-
-            int playerTurnOrdinal = in.readInt();
-            game.setCurrentPlayer(Player.values()[playerTurnOrdinal]);
-
-            return game;
-        }
-    }
-}
