@@ -1543,15 +1543,9 @@ class Clock {
     }
 
     public void decr() {
-        if (this.mm == 0 && this.ss == 0) {
-            this.ss = 59;
-            this.mm = 59;
-            this.hh--;
-        } else if (this.ss == 0) {
-            this.ss = 59;
-            this.mm--;
-        } else
-            this.ss--;
+        this.ss = (this.ss + 59) % 60;
+        this.mm = (this.mm + 59) % 60;
+        this.hh = (this.hh + 23) % 24;
     }
 
     public String getTime() {
