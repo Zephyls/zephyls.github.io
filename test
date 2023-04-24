@@ -59,7 +59,10 @@ public class Game implements Runnable {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Game());
-        Board.save(fileName);
+        GameWindow window = new GameWindow("Chess Game", "image/icon.png", hh, mm, ss);
+        Board board = new Board(window);
+        board.save("game.txt");
+
     }
 }
 
