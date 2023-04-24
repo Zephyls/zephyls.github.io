@@ -423,7 +423,6 @@ class StartMenu implements Runnable {
 @SuppressWarnings("serial")
 class Board extends JPanel implements MouseListener, MouseMotionListener {
     String fileName = "C:\\Users\\tuanv\\OneDrive\\Pulpit\\chess\\game.bin";
-
     public void save(String fileName) {
         System.out.println("Saving chess board to file: " + fileName);
         try (DataOutputStream output = new DataOutputStream(new FileOutputStream(fileName))) {
