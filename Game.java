@@ -59,9 +59,6 @@ public class Game implements Runnable {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Game());
-        Board board = new Board();
-        board.save("game.bin");
-
     }
 }
 
@@ -246,10 +243,28 @@ class GameWindow {
             }
         });
 
+        final JButton sGame = new JButton("Save");
+        JButton saveButton = new JButton("Save Game");
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                board.save("game.bin");
+            }
+        });
+        final JButton lGame = new JButton("Load");
+        JButton loadButton = new JButton("Load Game");
+        loadButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                board.load("game.bin");
+            }
+        });
+
         buttons.add(instr);
         buttons.add(nGame);
         buttons.add(quit);
-
+        buttons.add(sGame);
+        buttons.add(lGame);
         buttons.setPreferredSize(buttons.getMinimumSize());
 
         return buttons;
