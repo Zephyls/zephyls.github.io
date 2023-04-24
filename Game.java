@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.awt.Point;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.awt.event.*;
@@ -49,6 +48,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.DataOutputStream;
+import java.io.DataInputStream;
 
 public class Game implements Runnable {
 
@@ -475,6 +475,49 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
         }
         System.out.println("Chess board saved successfully!");
 
+    }
+
+    public void load(String fileName) {
+        System.out.println("Loading chess board from file: " + fileName);
+        try (DataInputStream input = new DataInputStream(new FileInputStream(fileName))) {
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    int value = input.read();
+                    if (value != -1) {
+                        int color = value & 1;
+                        int posY = (value >> 3) & 15;
+                        int posX = (value >> 6) & 15;
+                        int pieceType = (value >> 10) & 7;
+                        Piece occupyingPiece = null;
+                        switch (pieceType) {
+                            case 0:
+                                occupyingPiece = new Pawn(color);
+                                break;
+                            case 1:
+                                occupyingPiece = new King(color);
+                                break;
+                            case 2:
+                                occupyingPiece = new Queen(color);
+                                break;
+                            case 3:
+                                occupyingPiece = new Rook(color);
+                                break;
+                            case 4:
+                                occupyingPiece = new Bishop(color);
+                                break;
+                            case 5:
+                                occupyingPiece = new Knight(color);
+                                break;
+                        }
+                        getSquareArray()[posY][posX].setOccupyingPiece(occupyingPiece);
+                    }
+                }
+            }
+            input.close();
+        } catch (IOException e) {
+            System.out.println("Error occurred while loading the chess board: " + e.getMessage());
+        }
+        System.out.println("Chess board loaded successfully!");
     }
 
     private static final String RESOURCES_WBISHOP_PNG = "wbishop.png";
