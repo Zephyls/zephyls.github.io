@@ -256,7 +256,7 @@ class GameWindow {
         loadButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                board.load("game.bin");
+                board.load("game.bin", board);
             }
         });
 
@@ -509,7 +509,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                                 occupyingPiece = new Knight(color, getSquareArray()[posY][posX], null);
                                 break;
                         }
-                        getSquareArray()[posY][posX].setOccupyingPiece(occupyingPiece);
+                        getSquareArray()[posY][posX].getOccupyingPiece();
                     }
                 }
             }
