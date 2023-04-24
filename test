@@ -59,7 +59,7 @@ public class Game implements Runnable {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Game());
-        GameWindow window = new GameWindow("Chess", "wbishop.png", "bbishop.png", 400, 400);
+        GameWindow window = new GameWindow("Chess Game", "image/icon.png", 800, 600, new Board(new GameWindow()));
         Board board = new Board(new GameWindow("Chess", "resources"));
 
         board.save("game.txt");
@@ -450,7 +450,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                         int posX = j;
                         int posY = i;
                         int color = occupyingPiece.getColor();
-                        int value = (pieceType << 5) | (posX << 1) | (posY << 5) | color;
+                        int value = (pieceType << 10) | (posX << 6) | (posY << 3) | color;
                         output.write(value);
                         output.write("\n".getBytes()); // thêm lệnh xuống dòng
                     }
