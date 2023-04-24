@@ -59,10 +59,11 @@ public class Game implements Runnable {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Game(8));
+        SwingUtilities.invokeLater(new Game());
     }
 
 }
+
 class GameWindow {
     private JFrame gameWindow;
 
@@ -279,6 +280,8 @@ class GameWindow {
             if (n == JOptionPane.YES_OPTION) {
                 SwingUtilities.invokeLater(new StartMenu());
                 gameWindow.dispose();
+            } else {
+                gameWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             }
         } else {
             if (timer != null)
@@ -293,6 +296,8 @@ class GameWindow {
             if (n == JOptionPane.YES_OPTION) {
                 SwingUtilities.invokeLater(new StartMenu());
                 gameWindow.dispose();
+            } else {
+                gameWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             }
         }
     }
@@ -1162,6 +1167,7 @@ class Rook extends Piece {
 
 }
 
+// kiểm tra chiếu tướng
 class CheckmateDetector {
     private Board b;
     private LinkedList<Piece> wPieces;
@@ -1199,6 +1205,7 @@ class CheckmateDetector {
         update();
     }
 
+    // cập nhật danh sách các quân cờ có thể di chuyển đến các ô tương ứng
     public void update() {
 
         Iterator<Piece> wIter = wPieces.iterator();
@@ -1251,6 +1258,7 @@ class CheckmateDetector {
         }
     }
 
+    // kiểm tra quân vua đen có bị chiếu tướng hay không
     public boolean blackInCheck() {
         update();
         Square sq = bk.getPosition();
@@ -1261,6 +1269,7 @@ class CheckmateDetector {
             return true;
     }
 
+    // kiểm tra quân vua trắng có bị chiếu tướng hay không
     public boolean whiteInCheck() {
         update();
         Square sq = wk.getPosition();
@@ -1309,6 +1318,7 @@ class CheckmateDetector {
         return checkmate;
     }
 
+    // kiểm tra xem quân vua có tránh chiếu tướng được không
     private boolean canEvade(Map<Square, List<Piece>> tMoves, King tKing) {
         boolean evade = false;
         List<Square> kingsMoves = tKing.getLegalMoves(b);
@@ -1327,6 +1337,7 @@ class CheckmateDetector {
         return evade;
     }
 
+    // kiểm tra xem quân vua có bắt được quân đang chiếu tướng hay không
     private boolean canCapture(Map<Square, List<Piece>> poss,
             List<Piece> threats, King k) {
 
@@ -1358,6 +1369,7 @@ class CheckmateDetector {
         return capture;
     }
 
+    // kiểm tra xem quân vua có chặn được chiếu tướng hay không
     private boolean canBlock(List<Piece> threats,
             Map<Square, List<Piece>> blockMoves, King k) {
         boolean blockable = false;
@@ -1553,9 +1565,15 @@ class Clock {
     }
 
     public void decr() {
-        this.ss = (this.ss + 59) % 60;
-        this.mm = (this.mm + 59) % 60;
-        this.hh = (this.hh + 23) % 24;
+        if (this.mm == 0 && this.ss == 0) {
+            this.ss = 59;
+            this.mm = 59;
+            this.hh--;
+        } else if (this.ss == 0) {
+            this.ss = 59;
+            this.mm--;
+        } else
+            this.ss--;
     }
 
     public String getTime() {
