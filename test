@@ -57,15 +57,10 @@ public class Game implements Runnable {
 
     }
 
-    public class Game {
-        public static void main(String[] args) {
-            GameWindow window = new GameWindow("Chess Game", "image/icon.png", 800, 600, 0);
-            Board board = new Board(window);
-            window.setBoard(board);
-            board.start();
-        }
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Game());
+        Board.save(fileName);
     }
-
 }
 
 class GameWindow {
@@ -425,7 +420,7 @@ class StartMenu implements Runnable {
 
 @SuppressWarnings("serial")
 class Board extends JPanel implements MouseListener, MouseMotionListener {
-    String fileName = "C:\\Users\\tuanv\\OneDrive\\Pulpit\\chess\\game.txt";
+    String fileName = "C:\\Users\\tuanv\\OneDrive\\Pulpit\\chess\\game.bin";
 
     public void save(String fileName) {
         System.out.println("Saving chess board to file: " + fileName);
