@@ -48,20 +48,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+import java.io.DataOutputStream;
 
 public class Game implements Runnable {
 
     public void run() {
         SwingUtilities.invokeLater(new StartMenu());
+
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Game());
-    }
+        Board board = new Board();
+        board.save("game.bin");
 
+    }
 }
 
 class GameWindow {
@@ -74,39 +75,27 @@ class GameWindow {
 
     private Board board;
 
-    public GameWindow(String blackName, String whiteName, int hh,
-            int mm, int ss) {
-
+    public GameWindow(String blackName, String whiteName, int hh, int mm, int ss) {
         blackClock = new Clock(hh, ss, mm);
         whiteClock = new Clock(hh, ss, mm);
-
         gameWindow = new JFrame("Chess");
-
         try {
             Image whiteImg = ImageIO.read(getClass().getResource("wp.png"));
             gameWindow.setIconImage(whiteImg);
         } catch (Exception e) {
             System.out.println("Game file wp.png not found");
         }
-
         gameWindow.setLocation(100, 100);
-
         gameWindow.setLayout(new BorderLayout(20, 20));
-
         JPanel gameData = gameDataPanel(blackName, whiteName, hh, mm, ss);
         gameData.setSize(gameData.getPreferredSize());
         gameWindow.add(gameData, BorderLayout.NORTH);
-
         this.board = new Board(this);
-
         gameWindow.add(board, BorderLayout.CENTER);
-
         gameWindow.add(buttons(), BorderLayout.SOUTH);
-
         gameWindow.setMinimumSize(gameWindow.getPreferredSize());
         gameWindow.setSize(gameWindow.getPreferredSize());
         gameWindow.setResizable(false);
-
         gameWindow.pack();
         gameWindow.setVisible(true);
         gameWindow.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -304,6 +293,7 @@ class GameWindow {
 }
 
 class StartMenu implements Runnable {
+
     public void run() {
         final JFrame startWindow = new JFrame("Chess");
         // Set window properties
@@ -433,6 +423,44 @@ class StartMenu implements Runnable {
 
 @SuppressWarnings("serial")
 class Board extends JPanel implements MouseListener, MouseMotionListener {
+    String fileName = "C:\\Users\\tuanv\\OneDrive\\Pulpit\\chess\\game.bin";
+
+    public void save(String fileName) {
+        System.out.println("Saving chess board to file: " + fileName);
+        try (DataOutputStream output = new DataOutputStream(new FileOutputStream(fileName))) {
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    Square currentSquare = getSquareArray()[i][j];
+                    Piece occupyingPiece = currentSquare.getOccupyingPiece();
+                    if (occupyingPiece != null) {
+                        int pieceType = 0;
+                        if (occupyingPiece instanceof King) {
+                            pieceType = 1;
+                        } else if (occupyingPiece instanceof Queen) {
+                            pieceType = 2;
+                        } else if (occupyingPiece instanceof Rook) {
+                            pieceType = 3;
+                        } else if (occupyingPiece instanceof Bishop) {
+                            pieceType = 4;
+                        } else if (occupyingPiece instanceof Knight) {
+                            pieceType = 5;
+                        }
+                        int posX = j;
+                        int posY = i;
+                        int color = occupyingPiece.getColor();
+                        int value = (pieceType << 10) | (posX << 6) | (posY << 3) | color;
+                        output.write(value);
+                        output.write("\n".getBytes()); // thêm lệnh xuống dòng
+                    }
+                }
+            }
+            output.close();
+        } catch (IOException e) {
+            System.out.println("Error occurred while saving the chess board: " + e.getMessage());
+        }
+        System.out.println("Chess board saved successfully!");
+
+    }
 
     private static final String RESOURCES_WBISHOP_PNG = "wbishop.png";
     private static final String RESOURCES_BBISHOP_PNG = "bbishop.png";
@@ -1549,6 +1577,7 @@ class CheckmateDetector {
 
 }
 
+// tạo đồng hồ
 class Clock {
     private int hh;
     private int mm;
