@@ -59,7 +59,7 @@ public class Game implements Runnable {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Game());
-        GameWindow window = new GameWindow();
+        GameWindow window = new GameWindow("Chess", "wbishop.png", "bbishop.png", 400, 400);
         Board board = new Board(window);
         board.save("game.txt");
     }
@@ -452,11 +452,14 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                         output.write(value);
                     }
                 }
+                output.close();
+
             }
         } catch (IOException e) {
             System.out.println("Error occurred while saving the chess board: " + e.getMessage());
         }
         System.out.println("Chess board saved successfully!");
+
     }
 
     private static final String RESOURCES_WBISHOP_PNG = "wbishop.png";
