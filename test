@@ -57,16 +57,14 @@ public class Game implements Runnable {
 
     }
 
-public static void main(String[] args) {
-   GameWindow window = new GameWindow("Chess Game", "image/icon.png", 800, 600);
-Board board = new Board(window);
-    window.add(board);
-    window.setVisible(true);
-    board.initializePieces();
-    board.repaint();
-    board.save("game.txt");
-}
-
+    public class Game {
+        public static void main(String[] args) {
+            GameWindow window = new GameWindow("Chess Game", "image/icon.png", 800, 600, 0);
+            Board board = new Board(window);
+            window.setBoard(board);
+            board.start();
+        }
+    }
 
 }
 
