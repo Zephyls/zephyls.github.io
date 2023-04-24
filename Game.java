@@ -477,7 +477,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
 
     }
 
-    public void load(String fileName) {
+    public void load(String fileName, Board board) {
         System.out.println("Loading chess board from file: " + fileName);
         try (DataInputStream input = new DataInputStream(new FileInputStream(fileName))) {
             for (int i = 0; i < 8; i++) {
@@ -485,28 +485,28 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                     int value = input.read();
                     if (value != -1) {
                         int color = value & 1;
-                        int posY = (value >> 3) & 15;
-                        int posX = (value >> 6) & 15;
+                        int posY = (value >> 3) & 7;
+                        int posX = (value >> 6) & 7;
                         int pieceType = (value >> 10) & 7;
                         Piece occupyingPiece = null;
                         switch (pieceType) {
                             case 0:
-                                occupyingPiece = new Pawn(color);
+                                occupyingPiece = new Pawn(color, getSquareArray()[posY][posX], null);
                                 break;
                             case 1:
-                                occupyingPiece = new King(color);
+                                occupyingPiece = new King(color, getSquareArray()[posY][posX], null);
                                 break;
                             case 2:
-                                occupyingPiece = new Queen(color);
+                                occupyingPiece = new Queen(color, getSquareArray()[posY][posX], null);
                                 break;
                             case 3:
-                                occupyingPiece = new Rook(color);
+                                occupyingPiece = new Rook(color, getSquareArray()[posY][posX], null);
                                 break;
                             case 4:
-                                occupyingPiece = new Bishop(color);
+                                occupyingPiece = new Bishop(color, getSquareArray()[posY][posX], null);
                                 break;
                             case 5:
-                                occupyingPiece = new Knight(color);
+                                occupyingPiece = new Knight(color, getSquareArray()[posY][posX], null);
                                 break;
                         }
                         getSquareArray()[posY][posX].setOccupyingPiece(occupyingPiece);
