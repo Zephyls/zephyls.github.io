@@ -50,7 +50,7 @@ import java.io.ObjectOutputStream;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
 
-public class Game implements Runnable {
+public class s27970Projekt02 implements Runnable {
 
     public void run() {
         SwingUtilities.invokeLater(new StartMenu());
@@ -58,7 +58,7 @@ public class Game implements Runnable {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Game());
+        SwingUtilities.invokeLater(new s27970Projekt02());
     }
 }
 
@@ -144,9 +144,9 @@ class GameWindow {
                             timer.stop();
                             int n = JOptionPane.showConfirmDialog(
                                     gameWindow,
-                                    bn + " wins by time! Play a new game? \n" +
-                                            "Choosing \"No\" quits the game.",
-                                    bn + " wins!",
+                                    bn + " wygrywa na czas! Zagrać w nową grę? \n" +
+                                            "Wybranie \"No\" kończy grę.",
+                                    bn + "wygrywa!",
                                     JOptionPane.YES_NO_OPTION);
 
                             if (n == JOptionPane.YES_OPTION) {
@@ -163,9 +163,9 @@ class GameWindow {
                             timer.stop();
                             int n = JOptionPane.showConfirmDialog(
                                     gameWindow,
-                                    wn + " wins by time! Play a new game? \n" +
-                                            "Choosing \"No\" quits the game.",
-                                    wn + " wins!",
+                                    wn + " wygrywa na czas! Zagrać w nową grę? \n" +
+                                            "Wybranie \"No\" kończy grę.",
+                                    wn + "wygrywa!",
                                     JOptionPane.YES_NO_OPTION);
 
                             if (n == JOptionPane.YES_OPTION) {
@@ -179,8 +179,8 @@ class GameWindow {
             });
             timer.start();
         } else {
-            wTime.setText("Untimed game");
-            bTime.setText("Untimed game");
+            wTime.setText("Nieograniczona gra");
+            bTime.setText("Nieograniczona gra");
         }
 
         gameData.add(wTime);
@@ -201,8 +201,8 @@ class GameWindow {
             public void actionPerformed(ActionEvent e) {
                 int n = JOptionPane.showConfirmDialog(
                         gameWindow,
-                        "Are you sure you want to quit?",
-                        "Confirm quit", JOptionPane.YES_NO_OPTION);
+                        "Czy na pewno chcesz zrezygnować?",
+                        "Potwierdź zakończenie", JOptionPane.YES_NO_OPTION);
 
                 if (n == JOptionPane.YES_OPTION) {
                     if (timer != null)
@@ -218,8 +218,8 @@ class GameWindow {
             public void actionPerformed(ActionEvent e) {
                 int n = JOptionPane.showConfirmDialog(
                         gameWindow,
-                        "Are you sure you want to begin a new game?",
-                        "Confirm new game", JOptionPane.YES_NO_OPTION);
+                        "Czy na pewno chcesz rozpocząć nową grę?",
+                        "Potwierdź nową grę", JOptionPane.YES_NO_OPTION);
 
                 if (n == JOptionPane.YES_OPTION) {
                     SwingUtilities.invokeLater(new StartMenu());
@@ -233,11 +233,11 @@ class GameWindow {
         instr.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(gameWindow,
-                        "Move the chess pieces on the board by clicking\n"
-                                + "and dragging. The game will watch out for illegal\n"
-                                + "moves. You can win either by your opponent running\n"
-                                + "out of time or by checkmating your opponent.\n"
-                                + "\nGood luck, hope you enjoy the game!",
+                        "Przesuń szachy na planszy, klikając\n"
+                                + "i przeciąganie. Gra będzie uważać na nielegalne\n"
+                                + "ruchy. Możesz wygrać, biegnąc przeciwko przeciwnikowi\n"
+                                + "poza czasem lub przez zamatowanie przeciwnika.\n"
+                                + "\nPowodzenia!",
                         "How to play",
                         JOptionPane.PLAIN_MESSAGE);
             }
@@ -276,9 +276,9 @@ class GameWindow {
                 timer.stop();
             int n = JOptionPane.showConfirmDialog(
                     gameWindow,
-                    "White wins by checkmate! Set up a new game? \n" +
-                            "Choosing \"No\" lets you look at the final situation.",
-                    "White wins!",
+                    "Biały wygrywa matem! Skonfigurować nową grę? \n" +
+                            "Wybranie \"No\" pozwala spojrzeć na ostateczną sytuację.",
+                    "Biały wygrywa!",
                     JOptionPane.YES_NO_OPTION);
 
             if (n == JOptionPane.YES_OPTION) {
@@ -292,9 +292,9 @@ class GameWindow {
                 timer.stop();
             int n = JOptionPane.showConfirmDialog(
                     gameWindow,
-                    "Black wins by checkmate! Set up a new game? \n" +
-                            "Choosing \"No\" lets you look at the final situation.",
-                    "Black wins!",
+                    "Czarny wygrywa matem! Skonfigurować nową grę? \n" +
+                            "Wybierając \"No\" możesz spojrzeć na ostateczną sytuację.",
+                    "Czarny wygrywa!",
                     JOptionPane.YES_NO_OPTION);
 
             if (n == JOptionPane.YES_OPTION) {
@@ -397,10 +397,10 @@ class StartMenu implements Runnable {
         instr.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 JOptionPane.showMessageDialog(startWindow,
-                        "To begin a new game, input player names\n" +
-                                "next to the pieces. Set the clocks and\n" +
-                                "click \"Start\". Setting the timer to all\n" +
-                                "zeroes begins a new untimed game.",
+                        "Aby rozpocząć nową grę, wprowadź nazwy graczy\n" +
+                                "obok elementów. Ustaw zegary i\n" +
+                                "kliknij \"Start\". Ustawienie timera na wszystkie\n" +
+                                "zera rozpoczynają nową grę bez limitu czasu.",
                         "How to play",
                         JOptionPane.PLAIN_MESSAGE);
             }
@@ -465,7 +465,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                         int color = occupyingPiece.getColor();
                         int value = (pieceType << 10) | (posX << 6) | (posY << 3) | color;
                         output.write(value);
-                        output.write("\n".getBytes()); // thêm lệnh xuống dòng
+                        output.writeByte(value);
                     }
                 }
             }
@@ -510,6 +510,7 @@ class Board extends JPanel implements MouseListener, MouseMotionListener {
                                 break;
                         }
                         getSquareArray()[posY][posX].getOccupyingPiece();
+
                     }
                 }
             }
